@@ -286,12 +286,21 @@ async function createPostMediasElement() {
   return postMedias;
 }
 
-async function createPostMediaElement(mediaUrl) {
+async function createPostMediaElement(mediaUrl, animalData) {
   const postMedia = document.createElement('img');
   postMedia.classList.add('post__media');
   postMedia.src = mediaUrl;
   postMedia.alt = 'Conteúdo da Postagem';
+
+  postMedia.addEventListener('click', () => {
+    redirectToAnimalProfile(animalData);
+  });
   return postMedia;
+}
+
+function redirectToAnimalProfile(animalData) {
+  const profileUrl = `/pages/profile/profile.html#${animalData._id}`;
+  window.location.href = profileUrl;
 }
 
 function getRandomNumber() {
@@ -378,7 +387,7 @@ async function createPost(data) {
   profileElement.appendChild(userLinkElement);
 
   const postMediasElement = await createPostMediasElement();
-  const img = await createPostMediaElement(data.foto);
+  const img = await createPostMediaElement(data.foto, data);
   postMediasElement.appendChild(img);
   contentElement.appendChild(postMediasElement);
 

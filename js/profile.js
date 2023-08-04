@@ -4,8 +4,8 @@ function getUserIdFromUrl() {
   const url = window.location.href;
   const hashIndex = url.indexOf('#');
   if (hashIndex !== -1) {
-      const id = url.slice(hashIndex + 1);
-      return id;
+    const id = url.slice(hashIndex + 1);
+    return id;
   }
   return null;
 }
@@ -20,35 +20,36 @@ async function fetchAnimais() {
     const animal = data.find(animal => animal._id === getUserIdFromUrl());
     return animal;
   } catch (error) {
-    console.error('Erro:', error);
+    console.error('Erro ao buscar animal:', error);
     throw error;
   }
 }
 
-
 async function renderAnimal() {
-  const animalData = await fetchAnimais();
+  try {
+    const animalData = await fetchAnimais();
 
-  if (!animalData) {
-    console.error('Animal não encontrado.');
-    return;
+    if (!animalData) {
+      console.error('Animal não encontrado.');
+      return;
+    }
+
+    const animalNameElement = document.getElementById('animal-name');
+    const animalAgeElement = document.getElementById('animal-age');
+    const animalDescriptionElement = document.getElementById('animal-description');
+    const animalAdoptedElement = document.getElementById('animal-adopted');
+    const animalImageElements = document.querySelectorAll('.image');
+
+    animalNameElement.textContent = animalData.name;
+    animalAgeElement.textContent = `Idade: ${animalData.idade} anos`;
+    animalDescriptionElement.textContent = animalData.descricao;
+    animalAdoptedElement.textContent = `Adotado: ${animalData.adotado.toUpperCase() === 'S' ? 'sim' : 'não'}`;
+
+    animalImageElements.forEach(item => item.src = animalData.foto); // Correção aqui
+  } catch (error) {
+    console.error('Erro ao renderizar o animal:', error);
   }
-
-  const animalNameElement = document.getElementById('animal-name');
-  const animalAgeElement = document.getElementById('animal-age');
-  const animalDescriptionElement = document.getElementById('animal-description');
-  const animalAdoptedElement = document.getElementById('animal-adopted');
-  const animalImageElement = document.querySelectorAll('.image');
-
-  animalNameElement.textContent = animalData.name;
-  animalAgeElement.textContent = `Idade: ${animalData.idade} anos`;
-  animalDescriptionElement.textContent = animalData.descricao;
-  if (animalData.adotado.toUpperCase()  === 's') {
-      animalAdoptedElement.textContent = `Adotado: sim`;
-  } else {
-    animalAdoptedElement.textContent = `Adotado: não`;
-  }
-  animalImageElement.forEach((animal) => animal.src = animalData.foto) 
 }
 
 renderAnimal();
+

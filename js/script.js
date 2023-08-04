@@ -187,6 +187,8 @@ async function fetchAnimais() {
       throw new Error('Erro na solicitação: ' + response.status);
     }
     const data = await response.json();
+    const imageUrls = data.filter(animal => animal.adotado.toUpperCase() === ADOPTED_ANIMAL_STATUS).map(animal => animal.foto);
+    localStorage.setItem('fotos', JSON.stringify(imageUrls));
     console.log(data);
     return data;
   } catch (error) {
@@ -194,6 +196,31 @@ async function fetchAnimais() {
     throw error;
   }
 }
+
+
+async function fetchAndCacheAnimalData() {
+  let cachedImageUrls = JSON.parse(localStorage.getItem('cachedImageUrls'));
+
+  if (!cachedImageUrls) {
+    cachedImageUrls = [];
+  }
+
+  try {
+    const animalsData = await fetchAnimais();
+
+    if (!Array.isArray(animalsData)) {
+      console.error('Os dados buscados não são uma matriz válida.');
+      animalsData = []; // Retorna um array vazio em caso de dados inválidos
+    }
+
+    return { animalsData, cachedImageUrls };
+  } catch (error) {
+    console.error('Erro ao buscar dados dos animais:', error);
+    return { animalsData: [], cachedImageUrls };
+  }
+}
+
+
 
 // Função para criar os botões dinamicamente
 function createButton(iconPath, fillColor, strokeColor, strokeWidth) {
@@ -307,12 +334,8 @@ function getRandomNumber() {
   return Math.floor(Math.random() * 81) + 20;
 }
 
-function getRandomNumber() {
-  return Math.floor(Math.random() * 81) + 20;
-}
 
-
-async function createPostInfos(data, postElements) {
+async function createPostInfos(data, postElements, fotos) {
   postElements.forEach((postElement, index) => {
     const dataIndex = index;
     if (dataIndex >= data.length) {
@@ -322,9 +345,10 @@ async function createPostInfos(data, postElements) {
     function getRandom(data) {
       return Math.floor(Math.random() * data.length);
     }
-    const postFooter = postElement.querySelector('.post__footer'); // Encontra o footer do post
-    const dataItem = data[index]; // Obtém o item de dados correspondente
-    const dataItem2 = data[getRandom(data)]
+    const postFooter = postElement.querySelector('.post__footer'); 
+    const dataItem = data[index]; 
+    const number = getRandom(data)
+    const dataItem2 = data[number]
 
     const postInfos = document.createElement('div');
     postInfos.className = 'post__infos';
@@ -334,7 +358,7 @@ async function createPostInfos(data, postElements) {
     likesAvatarLink.href = '#';
     likesAvatarLink.className = 'post__likes-avatar';
     const likesAvatarImg = document.createElement('img');
-    likesAvatarImg.src = dataItem2.foto; // Usa a URL da imagem do animal do item de dados
+    likesAvatarImg.src = fotos[number]; 
     likesAvatarImg.alt = 'User Picture';
     likesAvatarLink.appendChild(likesAvatarImg);
     const likedBySpan = document.createElement('span');
@@ -356,7 +380,7 @@ async function createPostInfos(data, postElements) {
   });
 }
 
-async function createPost(data) {
+async function createPost(data, foto) {
   const articleElement = document.createElement("article");
   articleElement.classList.add("post");
 
@@ -380,31 +404,31 @@ async function createPost(data) {
   articleElement.appendChild(foot);
   articleElement.appendChild(footerElement);
 
-  const avatarLinkElement = await createAvatarLink(data.foto);
+  const avatarLinkElement = await createAvatarLink(foto);
   const userLinkElement = await createUserLink(data.name);
 
   profileElement.appendChild(avatarLinkElement);
   profileElement.appendChild(userLinkElement);
 
   const postMediasElement = await createPostMediasElement();
-  const img = await createPostMediaElement(data.foto, data);
+  const img = await createPostMediaElement(foto, data);
   postMediasElement.appendChild(img);
   contentElement.appendChild(postMediasElement);
 
   return articleElement;
 }
 
-async function displayPosts(data) {
+async function displayPosts(data, cachedImageUrls) {
   const postsContainer = document.querySelector('.posts');
-  const postElements = []; // Array para armazenar os elementos dos posts
+  const postElements = [];
 
   for (let index = 0; index < data.length; index += 1) {
-    const postElement = await createPost(data[index]);
+    const postElement = await createPost(data[index], cachedImageUrls[index]);
     postsContainer.appendChild(postElement);
-    postElements.push(postElement); // Adicione o elemento do post ao array
+    postElements.push(postElement);
   }
 
-  await createPostInfos(data, postElements); // Chame createPostInfos com o array de elementos de post
+  await createPostInfos(data, postElements, cachedImageUrls); 
 }
 
 
@@ -412,15 +436,13 @@ const dataNumber = ['1 day ago', '3 days ago', '30 minutes ago', '30 minutes ago
 
 
 async function fetchAnimaisAndDisplayPosts() {
-  try {
-    const data = await fetchAnimais();
-    data.reverse(); // Inverte a ordem do array
-    await displayPosts(data);
-  } catch (error) {
-    console.error('Erro ao exibir dados do usuário:', error);
-  }
+  let { animalsData, cachedImageUrls } = await fetchAndCacheAnimalData();
+  
+  animalsData = animalsData.reverse();
+  cachedImageUrls = cachedImageUrls.reverse();
+  
+  await displayPosts(animalsData, cachedImageUrls);
 }
-
 
 async function init() {
   await fetchAnimaisAndDisplayPosts();
@@ -430,7 +452,7 @@ init();
 
 
 
-function createStoryButton(animal) {
+function createStoryButton(animal, foto) {
   const storyButton = document.createElement('button');
   storyButton.classList.add('story', 'story--has-story');
 
@@ -480,7 +502,7 @@ function createStoryButton(animal) {
   storyPicture.classList.add('story__picture');
 
   const imgElement = document.createElement('img');
-  imgElement.src = animal.foto; // Pega a URL da imagem do animal na API
+  imgElement.src = foto; // Pega a URL da imagem do animal na API
   imgElement.alt = 'User Picture';
   imgElement.style.objectFit = 'cover';
   imgElement.onerror = function () {
@@ -504,18 +526,28 @@ function createStoryButton(animal) {
 }
 
 async function createDynamicStories() {
+  const { animalsData, cachedImageUrls } = await fetchAndCacheAnimalData();
+
   try {
-    const data = await fetchAnimais();
     const storiesContent = document.getElementById('storiesContent');
 
-    data.forEach((animal) => {
-      const storyButton = createStoryButton(animal);
-      storiesContent.appendChild(storyButton);
-    });
+    // Verificar se animalsData é uma matriz antes de usar o forEach
+    if (Array.isArray(animalsData)) {
+      animalsData.forEach((animal, index) => {
+        const storyButton = createStoryButton(animal, cachedImageUrls[index]);
+        storiesContent.appendChild(storyButton);
+      });
+    } else {
+      console.error('Erro: Os dados buscados não são uma matriz válida.');
+      console.error(animalsData); // Exibir os dados para debug
+    }
   } catch (error) {
     console.error('Erro ao buscar dados:', error);
   }
 }
+
+
+
 
 createDynamicStories();
 

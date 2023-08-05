@@ -6,13 +6,10 @@ const posts = document.querySelectorAll('.post');
 const postsContent = document.querySelectorAll('.post__content');
 const logo = document.querySelector('.logo')
 
-document.onload = setInitialTheme(localStorage.getItem('theme'));
 function setInitialTheme(themeKey) {
-  if (themeKey === 'dark') {
-    document.documentElement.classList.add('darkTheme');
-  } else {
-    document.documentElement.classList.remove('darkTheme');
-  }
+  document.documentElement.classList.toggle('darkTheme', themeKey === 'dark');
+  const logo = document.querySelector('.logo');
+  logo.src = themeKey === 'dark' ? '/images/cat-1.png' : '/images/icons8-cachorro-48.png';
 }
 
 // Toggle theme button
@@ -180,6 +177,9 @@ const API_URL = 'https://adote-amor.onrender.com/upload';
 
 const ADOPTED_ANIMAL_STATUS = 'S';
 
+const fallbackImageUrl = '/images/cat-totoro.gif';
+
+
 async function fetchAnimais() {
   try {
     const response = await fetch(API_URL);
@@ -193,12 +193,6 @@ async function fetchAnimais() {
     console.error('Erro:', error);
     throw error;
   }
-}
-
-
-function handlePostImageError(img) {
-  img.src = '/images/cat-totoro.gif'; 
-  img.alt = 'Fallback Picture';
 }
 
 // Função para criar os botões dinamicamente
@@ -256,10 +250,15 @@ const buttonData = [
 function createPostFooter() {
   const postFooter = document.createElement('div');
   postFooter.classList.add('post__buttons');
+  
+  // Substituí a função getRandomNumber() duplicada por uma variável
+  const randomNumber = Math.floor(Math.random() * 81) + 20;
+  
   buttonData.forEach((button) => {
     const buttonElement = createButton(button.iconPath, button.fillColor, button.strokeColor, button.strokeWidth);
     postFooter.appendChild(buttonElement);
   });
+  
   return postFooter;
 }
 
@@ -293,19 +292,60 @@ async function createPostMediasElement() {
 }
 
 async function createPostMediaElement(mediaUrl, animalData) {
-  const postMedia = document.createElement('img');
-  postMedia.classList.add('post__media');
-  postMedia.src = mediaUrl;
-  postMedia.alt = 'Conteúdo da Postagem';
+  const divContainer = document.createElement('div');
+  divContainer.classList.add('header_back', 'image-container');
 
-  postMedia.onerror = function () {
-    handlePostImageError(this);
-  };
+  const spanElement = document.createElement('span');
+  spanElement.classList.add('loading-text');
+  spanElement.textContent = 'Carregando...';
 
-  postMedia.addEventListener('click', () => {
-    redirectToAnimalProfile(animalData);
+  return new Promise((resolve, reject) => {
+    const postMedia = new Image();
+    postMedia.classList.add('post__media', 'image');
+    postMedia.alt = 'Imagem da Postagem';
+    postMedia.src = fallbackImageUrl;
+
+    divContainer.appendChild(postMedia);
+    divContainer.appendChild(spanElement);
+
+    postMedia.onerror = () => {
+
+      const fallbackImg = new Image();
+      fallbackImg.src = fallbackImageUrl;
+      fallbackImg.alt = 'Imagem de fallback'; 
+      resolve(fallbackImg);
+    };
+
+    postMedia.onload = () => {
+      resolve(postMedia);
+    };
+
+    postMedia.setAttribute('data-src', mediaUrl);
+
+    postMedia.addEventListener('click', () => {
+      redirectToAnimalProfile(animalData);
+    });
+
+    resolve(postMedia);
   });
-  return postMedia;
+}
+
+function lazyLoadImages() {
+  const lazyImages = document.querySelectorAll('img[data-src]');
+  const imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const lazyImage = entry.target;
+        lazyImage.src = lazyImage.getAttribute('data-src');
+        lazyImage.removeAttribute('data-src');
+        imageObserver.unobserve(lazyImage);
+      }
+    });
+  });
+
+  lazyImages.forEach((lazyImage) => {
+    imageObserver.observe(lazyImage);
+  });
 }
 
 function redirectToAnimalProfile(animalData) {
@@ -317,11 +357,6 @@ function getRandomNumber() {
   return Math.floor(Math.random() * 81) + 20;
 }
 
-function getRandomNumber() {
-  return Math.floor(Math.random() * 81) + 20;
-}
-
-
 async function createPostInfos(data, postElements) {
   postElements.forEach((postElement, index) => {
     const dataIndex = index;
@@ -329,12 +364,13 @@ async function createPostInfos(data, postElements) {
       return;
     }
     
-    function getRandom(data) {
+    function getRandomIndex(data) {
       return Math.floor(Math.random() * data.length);
     }
-    const postFooter = postElement.querySelector('.post__footer'); // Encontra o footer do post
+
+    const postFooter = postElement.querySelector('.post__footer'); // Encontra o rodapé do post
     const dataItem = data[index]; // Obtém o item de dados correspondente
-    const dataItem2 = data[getRandom(data)]
+    const dataItem2 = data[getRandomIndex(data)]; // Obtém um item de dados aleatório
 
     const postInfos = document.createElement('div');
     postInfos.className = 'post__infos';
@@ -365,6 +401,7 @@ async function createPostInfos(data, postElements) {
     postFooter.appendChild(postInfos);
   });
 }
+
 
 async function createPost(data) {
   const articleElement = document.createElement("article");
@@ -404,6 +441,7 @@ async function createPost(data) {
   return articleElement;
 }
 
+
 async function displayPosts(data) {
   const postsContainer = document.querySelector('.posts');
   const postElements = []; // Array para armazenar os elementos dos posts
@@ -415,32 +453,72 @@ async function displayPosts(data) {
   }
 
   await createPostInfos(data, postElements); // Chame createPostInfos com o array de elementos de post
+  lazyLoadImages();
 }
 
 
 const dataNumber = ['1 day ago', '3 days ago', '30 minutes ago', '30 minutes ago', '3 hours ago'];
 
-
-async function fetchAnimaisAndDisplayPosts() {
+async function fetchAnimaisAndSaveToLocalStorage() {
   try {
+    const cachedData = localStorage.getItem('animaisData');
+    if (cachedData) {
+      const data = JSON.parse(cachedData);
+      return data;
+    }
+
     const data = await fetchAnimais();
-    data.reverse(); // Inverte a ordem do array
-    await displayPosts(data);
+    data.reverse(); 
+    localStorage.setItem('animaisData', JSON.stringify(data));
+    return data;
   } catch (error) {
-    console.error('Erro ao exibir dados do usuário:', error);
+    console.error('Erro ao obter dados da API:', error);
+    return [];
+  }
+}
+
+// ...
+
+async function displayPostsFromLocalStorage() {
+  try {
+    const cachedData = localStorage.getItem('animaisData');
+    if (cachedData) {
+      const data = JSON.parse(cachedData);
+      const postsContainer = document.querySelector('.posts');
+      const postElements = []; // Array para armazenar os elementos dos posts
+
+      for (let index = 0; index < data.length; index += 1) {
+        const postElement = await createPost(data[index]);
+        postsContainer.appendChild(postElement);
+        postElements.push(postElement); 
+      }
+
+      await createPostInfos(data, postElements);  
+
+      lazyLoadImages();
+    }
+  } catch (error) {
+    console.error('Erro ao exibir dados na tela:', error);
   }
 }
 
 
 async function init() {
-  await fetchAnimaisAndDisplayPosts();
+  try {
+    await fetchAnimaisAndSaveToLocalStorage();
+    await displayPostsFromLocalStorage();
+    createDynamicStories();
+  } catch (error) {
+    console.error('Erro na inicialização:', error);
+  }
 }
 
 init();
 
 
 
-function createStoryButton(animal) {
+
+function createStoryButton({ foto, name }) {
   const storyButton = document.createElement('button');
   storyButton.classList.add('story', 'story--has-story');
 
@@ -490,7 +568,7 @@ function createStoryButton(animal) {
   storyPicture.classList.add('story__picture');
 
   const imgElement = document.createElement('img');
-  imgElement.src = animal.foto; 
+  imgElement.src = foto; 
   imgElement.alt = 'User Picture';
   imgElement.style.objectFit = 'cover';
 
@@ -502,7 +580,7 @@ function createStoryButton(animal) {
 
   const userNameElement = document.createElement('span');
   userNameElement.classList.add('story__user');
-  userNameElement.textContent = animal.name; 
+  userNameElement.textContent = name; 
 
   storyAvatar.appendChild(storyBorder);
   storyAvatar.appendChild(storyPicture);

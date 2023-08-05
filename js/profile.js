@@ -45,11 +45,29 @@ async function renderAnimal() {
     animalDescriptionElement.textContent = animalData.descricao;
     animalAdoptedElement.textContent = `Adotado: ${animalData.adotado.toUpperCase() === 'S' ? 'sim' : 'não'}`;
 
-    animalImageElements.forEach(item => item.src = animalData.foto); // Correção aqui
+    const loadImage = (imageElement, loadingTextElement) => {
+      return new Promise((resolve) => {
+        const image = new Image();
+        image.onload = function () {
+          imageElement.src = animalData.foto;
+          loadingTextElement.style.display = 'none';
+          resolve();
+        };
+        image.src = animalData.foto;
+      });
+    };
+
+    const imageContainers = document.querySelectorAll('.image-container');
+    imageContainers.forEach((container) => {
+      const imageElement = container.querySelector('.image');
+      const loadingTextElement = container.querySelector('.loading-text');
+      loadImage(imageElement, loadingTextElement);
+    });
   } catch (error) {
     console.error('Erro ao renderizar o animal:', error);
   }
 }
 
 renderAnimal();
+
 

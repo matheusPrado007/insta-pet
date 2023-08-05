@@ -195,6 +195,12 @@ async function fetchAnimais() {
   }
 }
 
+
+function handlePostImageError(img) {
+  img.src = '/images/cat-totoro.gif'; 
+  img.alt = 'Fallback Picture';
+}
+
 // Função para criar os botões dinamicamente
 function createButton(iconPath, fillColor, strokeColor, strokeWidth) {
   const button = document.createElement('button');
@@ -291,6 +297,10 @@ async function createPostMediaElement(mediaUrl, animalData) {
   postMedia.classList.add('post__media');
   postMedia.src = mediaUrl;
   postMedia.alt = 'Conteúdo da Postagem';
+
+  postMedia.onerror = function () {
+    handlePostImageError(this);
+  };
 
   postMedia.addEventListener('click', () => {
     redirectToAnimalProfile(animalData);
@@ -480,20 +490,19 @@ function createStoryButton(animal) {
   storyPicture.classList.add('story__picture');
 
   const imgElement = document.createElement('img');
-  imgElement.src = animal.foto; // Pega a URL da imagem do animal na API
+  imgElement.src = animal.foto; 
   imgElement.alt = 'User Picture';
   imgElement.style.objectFit = 'cover';
+
   imgElement.onerror = function () {
-    // Caso ocorra um erro ao carregar a imagem, definimos uma imagem de fallback
-    imgElement.src = 'fallback-image.jpg';
-    imgElement.alt = 'Fallback Picture';
+    handlePostImageError(this);
   };
 
   storyPicture.appendChild(imgElement);
 
   const userNameElement = document.createElement('span');
   userNameElement.classList.add('story__user');
-  userNameElement.textContent = animal.name; // Assume que o nome do animal está disponível na API
+  userNameElement.textContent = animal.name; 
 
   storyAvatar.appendChild(storyBorder);
   storyAvatar.appendChild(storyPicture);

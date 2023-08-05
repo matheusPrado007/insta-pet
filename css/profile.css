@@ -7,6 +7,33 @@ body {
  
     background-color: #7c7c7c39;
   }
+
+
+  .image-container {
+    position: relative;
+  }
+  
+  .image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  
+  .loading-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 5px 10px;
+    font-weight: bold;
+    font-size: 5rem;
+    border-radius: 5px;
+    pointer-events: none; /* Para não interferir com a interação do usuário na imagem */
+    z-index: 1;
+    opacity: 0.3;
+  }
+  
   
   .container {
     width: 100%;
@@ -30,7 +57,7 @@ body {
   .profile img {
     width: 45rem;
     height: 45rem;
-    border-radius: 50%; /* Alterado para 50% para tornar a imagem circular */
+    border-radius: 15%; /* Alterado para 50% para tornar a imagem circular */
     border: 3px solid #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     object-fit: cover; 

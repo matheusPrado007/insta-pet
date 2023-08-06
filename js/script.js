@@ -476,38 +476,52 @@ async function fetchAnimaisAndSaveToLocalStorage() {
 
     const data = await fetchAnimais();
     data.reverse();
-    localStorage.setItem('animaisData', JSON.stringify(data));
-    return data;
+
+    // Mapear os IDs existentes no Local Storage
+    const existingIds = new Set();
+    const cachedDataArray = JSON.parse(cachedData);
+    if (cachedDataArray) {
+      cachedDataArray.forEach((item) => existingIds.add(item.id));
+    }
+
+    // Atualizar o Local Storage apenas com os IDs ausentes
+    data.forEach((item) => {
+      if (!existingIds.has(item.id)) {
+        cachedDataArray.push(item);
+      }
+    });
+
+    localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
+    return cachedDataArray;
   } catch (error) {
     console.error('Erro ao obter dados da API:', error);
     return [];
   }
 }
 
+
 // ...
 
 async function displayPostsFromLocalStorage() {
   try {
-    const cachedData = localStorage.getItem('animaisData');
-    if (cachedData) {
-      const data = JSON.parse(cachedData);
-      const postsContainer = document.querySelector('.posts');
-      const postElements = []; // Array para armazenar os elementos dos posts
+    const data = await fetchAnimaisAndSaveToLocalStorage();
+    const postsContainer = document.querySelector('.posts');
+    const postElements = [];
 
-      for (let index = 0; index < data.length; index += 1) {
-        const postElement = await createPost(data[index]);
-        postsContainer.appendChild(postElement);
-        postElements.push(postElement);
-      }
-
-      await createPostInfos(data, postElements);
-
-      lazyLoadImages();
+    for (let index = 0; index < data.length; index += 1) {
+      const postElement = await createPost(data[index]);
+      postsContainer.appendChild(postElement);
+      postElements.push(postElement);
     }
+
+    await createPostInfos(data, postElements);
+
+    lazyLoadImages();
   } catch (error) {
     console.error('Erro ao exibir dados na tela:', error);
   }
 }
+
 
 
 async function init() {

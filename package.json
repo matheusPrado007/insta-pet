@@ -1,26 +1,21 @@
 {
   "name": "insta-pet",
   "version": "1.0.0",
-  "description": "## Em construção",
+  "description": "Visão Geral do Projeto O \"PetAdopt\" é uma rede social dedicada à adoção de animais de estimação.  A plataforma tem como objetivo conectar pessoas interessadas em adotar pets com abrigos, protetores de animais e resgatistas que têm animais disponíveis para adoção. Através do \"PetAdopt\", os usuários podem encontrar e compartilhar informações sobre animais que precisam de um lar amoroso.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/matheusPrado007/insta-pet"
+    "url": "git+https://github.com/matheusPrado007/insta-pet.git"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/matheusPrado007/insta-pet"
+    "url": "https://github.com/matheusPrado007/insta-pet/issues"
   },
-  "homepage": "https://github.com/matheusPrado007/insta-pet",
-  "devDependencies": {
-    "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
-  },
+  "homepage": "https://github.com/matheusPrado007/insta-pet#readme",
   "dependencies": {
     "sweetalert2": "^11.7.20"
   }

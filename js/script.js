@@ -479,10 +479,8 @@ async function fetchAnimaisAndSaveToLocalStorage() {
 
     // Mapear os IDs existentes no Local Storage
     const existingIds = new Set();
-    const cachedDataArray = JSON.parse(cachedData);
-    if (cachedDataArray) {
-      cachedDataArray.forEach((item) => existingIds.add(item.id));
-    }
+    let cachedDataArray = JSON.parse(cachedData) || []; // Inicializar com um array vazio se não houver dados no Local Storage
+    cachedDataArray.forEach((item) => existingIds.add(item.id));
 
     // Atualizar o Local Storage apenas com os IDs ausentes
     data.forEach((item) => {
@@ -498,6 +496,7 @@ async function fetchAnimaisAndSaveToLocalStorage() {
     return [];
   }
 }
+
 
 
 // ...
@@ -536,6 +535,41 @@ async function init() {
 
 init();
 
+async function updateLocalStoragePeriodically() {
+  try {
+    // Função para buscar dados da API e atualizar o Local Storage
+    const updateLocalStorage = async () => {
+      const data = await fetchAnimais();
+      data.reverse();
+
+      const cachedData = localStorage.getItem('animaisData');
+      const cachedDataArray = JSON.parse(cachedData) || [];
+
+      // Mapear os IDs existentes no Local Storage
+      const existingIds = new Set();
+      cachedDataArray.forEach((item) => existingIds.add(item.id));
+
+      // Atualizar o Local Storage apenas com os IDs ausentes
+      data.forEach((item) => {
+        if (!existingIds.has(item.id)) {
+          cachedDataArray.push(item);
+        }
+      });
+
+      localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
+    };
+
+    const intervaloEmMilissegundos = 3600000;
+
+    await updateLocalStorage();
+
+    setInterval(updateLocalStorage, intervaloEmMilissegundos);
+  } catch (error) {
+    console.error('Erro ao atualizar o Local Storage:', error);
+  }
+}
+
+updateLocalStoragePeriodically();
 
 
 

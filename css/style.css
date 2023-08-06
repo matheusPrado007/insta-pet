@@ -818,14 +818,22 @@ img {
 .profile-button:focus .profile-button__border {
   display: block;
 }
+
 .profile-button__picture {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-
+  object-fit: cover;
   overflow: hidden;
   position: relative;
 }
+
+.profile-button__picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .profile-button__picture::after {
   content: '';
   position: absolute;
@@ -833,10 +841,10 @@ img {
   bottom: 0;
   left: 0;
   right: 0;
-
   border: 1px solid var(--img-border);
   border-radius: 50%;
 }
+
 
 /* Media Queries */
 @media (max-width: 767px) {

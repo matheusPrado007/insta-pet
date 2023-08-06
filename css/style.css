@@ -647,7 +647,7 @@ img {
   font-weight: 500;
   color: var(--text-dark);
   text-decoration: none;
-  text-transform: lowercase;
+  /* text-transform: lowercase; */
 
   max-width: 180px;
   text-overflow: ellipsis;

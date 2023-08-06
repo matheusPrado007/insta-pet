@@ -200,13 +200,19 @@ const buttonData = [
     iconPath: "/images/coracao-2.png",
     fillColor: 'var(--text-dark)',
     strokeColor: 'var(--text-dark)',
-    strokeWidth: '2rem',
+    strokeWidth: '1.9rem',
   },
   {
     iconPath: "/images/comp.png",
     fillColor: 'var(--text-dark)',
     strokeColor: 'var(--text-dark)',
     strokeWidth: '1.7rem',
+  },
+  {
+    iconPath: "/images/clique.png",
+    fillColor: 'var(--text-dark)',
+    strokeColor: 'var(--text-dark)',
+    strokeWidth: '5.5rem',
   },
   {
     iconPath: "/images/money.png",
@@ -221,15 +227,19 @@ function createButton(iconPath, fillColor, strokeColor, strokeWidth) {
   const button = document.createElement('button');
   button.className = 'post__button';
 
-  if (iconPath === "/images/money.png") {
+  if (iconPath === "/images/money.png" || iconPath === "/images/clique.png") {
     button.classList.add('post__button--align-right');
+  }
+
+  if ( iconPath === "/images/clique.png") {
+    button.classList.add('me-adote');
   }
 
   const img = document.createElement('img');
   img.src = iconPath;
-  img.style.fill = fillColor; 
-  img.style.stroke = strokeColor; 
-  img.style.width = strokeWidth; 
+  img.style.fill = fillColor;
+  img.style.stroke = strokeColor;
+  img.style.width = strokeWidth;
   img.alt = 'Button Image';
 
   button.appendChild(img);
@@ -237,12 +247,9 @@ function createButton(iconPath, fillColor, strokeColor, strokeWidth) {
   return button;
 }
 document.addEventListener('DOMContentLoaded', function () {
-  const buttonsContainer = document.querySelector('.buttons-container');
-  
   buttonData.forEach((buttonInfo) => {
     const { iconPath, fillColor, strokeColor, strokeWidth } = buttonInfo;
-    const button = createButton(iconPath, fillColor, strokeColor, strokeWidth);
-    buttonsContainer.appendChild(button);
+    createButton(iconPath, fillColor, strokeColor, strokeWidth);
   });
 });
 
@@ -251,15 +258,14 @@ document.addEventListener('DOMContentLoaded', function () {
 function createPostFooter() {
   const postFooter = document.createElement('div');
   postFooter.classList.add('post__buttons');
-  
-  // Substituí a função getRandomNumber() duplicada por uma variável
+
   const randomNumber = Math.floor(Math.random() * 81) + 20;
-  
+
   buttonData.forEach((button) => {
     const buttonElement = createButton(button.iconPath, button.fillColor, button.strokeColor, button.strokeWidth);
     postFooter.appendChild(buttonElement);
   });
-  
+
   return postFooter;
 }
 
@@ -313,7 +319,7 @@ async function createPostMediaElement(mediaUrl, animalData) {
 
       const fallbackImg = new Image();
       fallbackImg.src = fallbackImageUrl;
-      fallbackImg.alt = 'Imagem de fallback'; 
+      fallbackImg.alt = 'Imagem de fallback';
       resolve(fallbackImg);
     };
 
@@ -364,7 +370,7 @@ async function createPostInfos(data, postElements) {
     if (dataIndex >= data.length) {
       return;
     }
-    
+
     function getRandomIndex(data) {
       return Math.floor(Math.random() * data.length);
     }
@@ -469,7 +475,7 @@ async function fetchAnimaisAndSaveToLocalStorage() {
     }
 
     const data = await fetchAnimais();
-    data.reverse(); 
+    data.reverse();
     localStorage.setItem('animaisData', JSON.stringify(data));
     return data;
   } catch (error) {
@@ -491,10 +497,10 @@ async function displayPostsFromLocalStorage() {
       for (let index = 0; index < data.length; index += 1) {
         const postElement = await createPost(data[index]);
         postsContainer.appendChild(postElement);
-        postElements.push(postElement); 
+        postElements.push(postElement);
       }
 
-      await createPostInfos(data, postElements);  
+      await createPostInfos(data, postElements);
 
       lazyLoadImages();
     }
@@ -569,7 +575,7 @@ function createStoryButton({ foto, name }) {
   storyPicture.classList.add('story__picture');
 
   const imgElement = document.createElement('img');
-  imgElement.src = foto; 
+  imgElement.src = foto;
   imgElement.alt = 'User Picture';
   imgElement.style.objectFit = 'cover';
 
@@ -581,7 +587,7 @@ function createStoryButton({ foto, name }) {
 
   const userNameElement = document.createElement('span');
   userNameElement.classList.add('story__user');
-  userNameElement.textContent = name; 
+  userNameElement.textContent = name;
 
   storyAvatar.appendChild(storyBorder);
   storyAvatar.appendChild(storyPicture);

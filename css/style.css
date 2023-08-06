@@ -507,6 +507,19 @@ img {
 .post__button--align-right {
   margin-left: auto;
 }
+.me-adote {
+  border-radius: 15%; /* Bordas arredondadas */
+  border: none; 
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+/* Estilo quando o cursor passa por cima do botão */
+.me-adote:hover {
+  opacity: 1;  
+  border: none; 
+}
+
 .post__indicators {
   display: flex;
   align-items: center;

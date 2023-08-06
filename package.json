@@ -1,0 +1,27 @@
+{
+  "name": "insta-pet",
+  "version": "1.0.0",
+  "description": "## Em construção",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/matheusPrado007/insta-pet"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/matheusPrado007/insta-pet"
+  },
+  "homepage": "https://github.com/matheusPrado007/insta-pet",
+  "devDependencies": {
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "sweetalert2": "^11.7.20"
+  }
+}

@@ -473,7 +473,7 @@ async function fetchAnimaisAndSaveToLocalStorage() {
   try {
     const cachedData = localStorage.getItem('animaisData');
     const lastUpdated = localStorage.getItem('lastUpdated');
-    const intervaloEmMilissegundos = 3600000; // 1 hora
+    const intervaloEmMilissegundos = 100000;
 
     if (cachedData && lastUpdated) {
       const data = JSON.parse(cachedData);

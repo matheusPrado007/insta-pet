@@ -187,6 +187,9 @@ async function fetchAnimais() {
       throw new Error('Erro na solicitação: ' + response.status);
     }
     const data = await response.json();
+    const responseDataSizeInBytes = new TextEncoder().encode(JSON.stringify(data)).length;
+    console.log('Tamanho da resposta da API (em bytes):', responseDataSizeInBytes);
+
     console.log(data);
     return data;
   } catch (error) {
@@ -547,7 +550,6 @@ init();
 
 async function updateLocalStoragePeriodically() {
   try {
-    // Função para buscar dados da API e atualizar o Local Storage
     const updateLocalStorage = async () => {
       const data = await fetchAnimais();
       data.reverse();
@@ -555,23 +557,20 @@ async function updateLocalStoragePeriodically() {
       const cachedData = localStorage.getItem('animaisData');
       const cachedDataArray = JSON.parse(cachedData) || [];
     
-      // Mapear os IDs existentes no Local Storage
       const existingIds = new Set();
       cachedDataArray.forEach((item) => existingIds.add(item.id));
     
-      // Atualizar o Local Storage apenas com os IDs ausentes
       data.forEach((item) => {
         if (!existingIds.has(item.id)) {
           cachedDataArray.push(item);
         }
       });
     
-      // Atualizar o Local Storage com os dados e o timestamp único
       localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
       localStorage.setItem('lastUpdated', Date.now()); // Adiciona um timestamp único
     };
 
-    const intervaloEmMilissegundos = 3600000;
+    const intervaloEmMilissegundos = 300000;
 
     await updateLocalStorage();
 

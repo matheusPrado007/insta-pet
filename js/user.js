@@ -65,11 +65,17 @@ formElement.addEventListener('submit', async (e) => {
     });
 
     if (!response.ok) {
-      swal('Oh no...', 'Algo deu errado!', 'error')
+      swal('Oh no...', 'Algo deu errado!', 'error');
       throw new Error('Erro na solicitação');
     }
 
     const data = await response.json();
+
+    const cachedData = localStorage.getItem('animaisData');
+    const cachedDataArray = JSON.parse(cachedData) || [];
+    cachedDataArray.push(data);
+    localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
+
     await swal({
       title: 'Boa!',
       text: 'Deu tudo certo!',
@@ -78,7 +84,7 @@ formElement.addEventListener('submit', async (e) => {
         confirm: 'OK',
       },
     }).then(() => {
-      // Limpa os campos do formulário
+      // Limpar os campos do formulário
       document.getElementById('name').value = '';
       document.getElementById('photo').value = '';
       document.getElementById('age').value = '';
@@ -87,12 +93,12 @@ formElement.addEventListener('submit', async (e) => {
       document.getElementById('state').value = '';
       document.getElementById('adopted').value = '';
 
-      // Redireciona para a página index.html
+      // Redirecionar para a página index.html
       window.location.href = '/index.html';
     });
 
   } catch (error) {
-    swal('Oh no...', 'Algo deu errado!', 'error')
+    swal('Oh no...', 'Algo deu errado!', 'error');
     console.error('Caiu no Erro:', error);
   }
 });

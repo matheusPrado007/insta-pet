@@ -485,16 +485,18 @@ async function fetchAnimaisAndSaveToLocalStorage() {
       }
     }
 
+    // Caso contrário, buscar os dados da API e atualizar o Local Storage
     const data = await fetchAnimais();
     data.reverse();
     const existingIds = [];
 
-    let cachedDataArray = JSON.parse(cachedData) || []; 
+    let cachedDataArray = JSON.parse(cachedData) || []; // Inicializar com um array vazio se não houver dados no Local Storage
     if (cachedDataArray) {
       cachedDataArray.forEach((item) => existingIds.push(item._id));
     }
     console.log('exist', existingIds);
 
+    // Atualizar o Local Storage apenas com os IDs ausentes
     data.forEach((item) => {
       if (!existingIds.includes(item._id)) {
         cachedDataArray.push(item);
@@ -510,8 +512,12 @@ async function fetchAnimaisAndSaveToLocalStorage() {
   }
 }
 
+function clearLocalStorageOnUnload() {
+  localStorage.clear();
+}
 
-// ...
+window.addEventListener('beforeunload', clearLocalStorageOnUnload);
+
 
 async function displayPostsFromLocalStorage() {
   try {

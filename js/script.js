@@ -488,8 +488,8 @@ async function fetchAnimaisAndSaveToLocalStorage() {
     data.reverse();
     const existingIds = new Set();
 
-    if (cachedData) {
-      const cachedDataArray = JSON.parse(cachedData);
+    let cachedDataArray = JSON.parse(cachedData) || []; // Inicializar com um array vazio se não houver dados no Local Storage
+    if (cachedDataArray) {
       cachedDataArray.forEach((item) => existingIds.add(item.id));
     }
 
@@ -500,16 +500,13 @@ async function fetchAnimaisAndSaveToLocalStorage() {
       }
     });
 
-    localStorage.setItem('animaisData', JSON.stringify(data));
-    localStorage.setItem('lastUpdated', Date.now()); // Atualizar o timestamp
+    localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
     return data;
   } catch (error) {
     console.error('Erro ao obter dados da API:', error);
     return [];
   }
 }
-
-
 
 
 // ...

@@ -70,15 +70,27 @@ formElement.addEventListener('submit', async (e) => {
     }
 
     const data = await response.json();
-    swal('Boa!', 'Deu tudo certo!', 'success')
+    await swal({
+      title: 'Boa!',
+      text: 'Deu tudo certo!',
+      icon: 'success',
+      buttons: {
+        confirm: 'OK',
+      },
+    }).then(() => {
+      // Limpa os campos do formulário
+      document.getElementById('name').value = '';
+      document.getElementById('photo').value = '';
+      document.getElementById('age').value = '';
+      document.getElementById('description').value = '';
+      document.getElementById('city').value = '';
+      document.getElementById('state').value = '';
+      document.getElementById('adopted').value = '';
 
-    document.getElementById('name').value = '';
-    document.getElementById('photo').value = '';
-    document.getElementById('age').value = '';
-    document.getElementById('description').value = '';
-    document.getElementById('city').value = '';
-    document.getElementById('state').value = '';
-    document.getElementById('adopted').value = '';
+      // Redireciona para a página index.html
+      window.location.href = '/index.html';
+    });
+
   } catch (error) {
     swal('Oh no...', 'Algo deu errado!', 'error')
     console.error('Caiu no Erro:', error);

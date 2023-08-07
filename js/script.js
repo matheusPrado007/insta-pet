@@ -558,10 +558,10 @@ async function updateLocalStoragePeriodically() {
       const cachedDataArray = JSON.parse(cachedData) || [];
     
       const existingIds = new Set();
-      cachedDataArray.forEach((item) => existingIds.add(item.id));
+      cachedDataArray.forEach((item) => existingIds.add(item._id));
     
       data.forEach((item) => {
-        if (!existingIds.has(item.id)) {
+        if (!existingIds.has(item._id)) {
           cachedDataArray.push(item);
         }
       });

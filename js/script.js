@@ -485,38 +485,36 @@ async function fetchAnimaisAndSaveToLocalStorage() {
       }
     }
 
-    // Caso contrário, buscar os dados da API e atualizar o Local Storage
     const data = await fetchAnimais();
     data.reverse();
-    const existingIds = [];
+    const existingIds = new Set();
 
-    let cachedDataArray = JSON.parse(cachedData) || []; // Inicializar com um array vazio se não houver dados no Local Storage
+    let cachedDataArray = JSON.parse(cachedData) || [];
     if (cachedDataArray) {
-      cachedDataArray.forEach((item) => existingIds.push(item._id));
+      cachedDataArray.forEach((item) => existingIds.add(item._id));
     }
     console.log('exist', existingIds);
 
-    // Atualizar o Local Storage apenas com os IDs ausentes
+    // Verificar se os dados da API são diferentes dos dados no Local Storage
+    let dataChanged = false;
     data.forEach((item) => {
-      if (!existingIds.includes(item._id)) {
+      if (!existingIds.has(item._id)) {
         cachedDataArray.push(item);
+        dataChanged = true;
       }
     });
 
-    localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
-    console.log('Dados salvos no Local Storage:', cachedDataArray);
+    if (dataChanged) {
+      localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
+      console.log('Dados salvos no Local Storage:', cachedDataArray);
+    }
+
     return data;
   } catch (error) {
     console.error('Erro ao obter dados da API:', error);
     return [];
   }
 }
-
-function clearLocalStorageOnUnload() {
-  localStorage.clear();
-}
-
-window.addEventListener('beforeunload', clearLocalStorageOnUnload);
 
 
 async function displayPostsFromLocalStorage() {
@@ -552,40 +550,6 @@ async function init() {
 }
 
 init();
-
-async function updateLocalStoragePeriodically() {
-  try {
-    const updateLocalStorage = async () => {
-      const data = await fetchAnimais();
-      data.reverse();
-    
-      const cachedData = localStorage.getItem('animaisData');
-      const cachedDataArray = JSON.parse(cachedData) || [];
-    
-      const existingIds = new Set();
-      cachedDataArray.forEach((item) => existingIds.add(item._id));
-    
-      data.forEach((item) => {
-        if (!existingIds.has(item._id)) {
-          cachedDataArray.push(item);
-        }
-      });
-    
-      localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
-      localStorage.setItem('lastUpdated', Date.now()); 
-    };
-
-    const intervaloEmMilissegundos = 300000;
-
-    await updateLocalStorage();
-
-    setInterval(updateLocalStorage, intervaloEmMilissegundos);
-  } catch (error) {
-    console.error('Erro ao atualizar o Local Storage:', error);
-  }
-}
-
-updateLocalStoragePeriodically();
 
 
 

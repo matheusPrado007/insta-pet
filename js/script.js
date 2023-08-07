@@ -481,29 +481,28 @@ async function fetchAnimaisAndSaveToLocalStorage() {
       const timeDifference = now - parseInt(lastUpdated);
 
       if (timeDifference < intervaloEmMilissegundos) {
-        // Se o intervalo de tempo não excedeu o limite, retornar os dados do Local Storage
         return data;
       }
     }
 
-    // Caso contrário, buscar os dados da API e atualizar o Local Storage
     const data = await fetchAnimais();
     data.reverse();
-    const existingIds = new Set();
+    const existingIds = [];
 
-    let cachedDataArray = JSON.parse(cachedData) || []; // Inicializar com um array vazio se não houver dados no Local Storage
+    let cachedDataArray = JSON.parse(cachedData) || []; 
     if (cachedDataArray) {
-      cachedDataArray.forEach((item) => existingIds.add(item._id));
+      cachedDataArray.forEach((item) => existingIds.push(item._id));
     }
+    console.log('exist', existingIds);
 
-    // Atualizar o Local Storage apenas com os IDs ausentes
     data.forEach((item) => {
-      if (!existingIds.has(item._id)) {
+      if (!existingIds.includes(item._id)) {
         cachedDataArray.push(item);
       }
     });
 
     localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
+    console.log('Dados salvos no Local Storage:', cachedDataArray);
     return data;
   } catch (error) {
     console.error('Erro ao obter dados da API:', error);
@@ -567,7 +566,7 @@ async function updateLocalStoragePeriodically() {
       });
     
       localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
-      localStorage.setItem('lastUpdated', Date.now()); // Adiciona um timestamp único
+      localStorage.setItem('lastUpdated', Date.now()); 
     };
 
     const intervaloEmMilissegundos = 300000;

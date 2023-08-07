@@ -187,8 +187,6 @@ async function fetchAnimais() {
       throw new Error('Erro na solicitação: ' + response.status);
     }
     const data = await response.json();
-    const responseDataSizeInBytes = new TextEncoder().encode(JSON.stringify(data)).length;
-    console.log('Tamanho da resposta da API (em bytes):', responseDataSizeInBytes);
 
     console.log(data);
     return data;
@@ -469,67 +467,35 @@ async function displayPosts(data) {
 
 const dataNumber = ['1 day ago', '3 days ago', '30 minutes ago', '30 minutes ago', '3 hours ago'];
 
-async function fetchAnimaisAndSaveToLocalStorage() {
+
+async function fetchAnimaisToLocalStorage() {
   try {
     const cachedData = localStorage.getItem('animaisData');
     const lastUpdated = localStorage.getItem('lastUpdated');
-    const intervaloEmMilissegundos = 100000;
 
     if (cachedData && lastUpdated) {
-      const data = JSON.parse(cachedData);
-      const now = Date.now();
-      const timeDifference = now - parseInt(lastUpdated);
-
-      if (timeDifference < intervaloEmMilissegundos) {
-        return data;
-      }
+      return JSON.parse(cachedData);
     }
 
-    const data = await fetchAnimais();
-    data.reverse();
-    const existingIds = new Set();
-
-    let cachedDataArray = JSON.parse(cachedData) || [];
-    if (cachedDataArray) {
-      cachedDataArray.forEach((item) => existingIds.add(item._id));
-    }
-    console.log('exist', existingIds);
-
-    // Verificar se os dados da API são diferentes dos dados no Local Storage
-    let dataChanged = false;
-    data.forEach((item) => {
-      if (!existingIds.has(item._id)) {
-        cachedDataArray.push(item);
-        dataChanged = true;
-      }
-    });
-
-    if (dataChanged) {
-      localStorage.setItem('animaisData', JSON.stringify(cachedDataArray));
-      console.log('Dados salvos no Local Storage:', cachedDataArray);
-    }
-
-    return data;
+    return [];
   } catch (error) {
-    console.error('Erro ao obter dados da API:', error);
+    console.error('Erro ao obter dados do Local Storage:', error);
     return [];
   }
 }
 
-
 async function displayPostsFromLocalStorage() {
   try {
-    const data = await fetchAnimaisAndSaveToLocalStorage();
+    const data = await fetchAnimaisToLocalStorage();
     const postsContainer = document.querySelector('.posts');
-    const postElements = [];
 
-    for (let index = 0; index < data.length; index += 1) {
-      const postElement = await createPost(data[index]);
+    const postElements = await Promise.all(data.map(createPost));
+
+    postElements.forEach((postElement) => {
       postsContainer.appendChild(postElement);
-      postElements.push(postElement);
-    }
+    });
 
-    await createPostInfos(data, postElements);
+    await createPostInfos(data, postElements); // Passando 'postElements' (array) como primeiro argumento
 
     lazyLoadImages();
   } catch (error) {
@@ -539,9 +505,55 @@ async function displayPostsFromLocalStorage() {
 
 
 
+async function syncLocalStorageWithAPI() {
+  try {
+    const cachedData = localStorage.getItem('animaisData');
+    const lastUpdated = localStorage.getItem('lastUpdated');
+    const intervaloEmMilissegundos = 100000;
+
+    if (cachedData && lastUpdated) {
+      const dataFromLocalStorage = JSON.parse(cachedData);
+      const now = Date.now();
+      const timeDifference = now - parseInt(lastUpdated);
+
+      if (timeDifference < intervaloEmMilissegundos) {
+        // Os dados no Local Storage estão atualizados, não é necessário fazer nada
+        return [];
+      }
+    }
+
+    // Buscar os dados da API
+    const dataFromAPI = await fetchAnimais();
+    dataFromAPI.reverse();
+
+    // Buscar os dados do Local Storage
+    const dataFromLocalStorage = JSON.parse(cachedData) || [];
+
+    // Remover os dados do Local Storage que não existem mais na API
+    const existingIdsFromAPI = new Set(dataFromAPI.map((item) => item._id));
+    const filteredData = dataFromLocalStorage.filter((item) => existingIdsFromAPI.has(item._id));
+
+    // Adicionar os novos dados da API ao Local Storage
+    dataFromAPI.forEach((apiData) => {
+      const matchedData = filteredData.find((localData) => localData._id === apiData._id);
+      if (!matchedData) {
+        filteredData.push(apiData);
+      }
+    });
+
+    localStorage.setItem('animaisData', JSON.stringify(filteredData));
+    localStorage.setItem('lastUpdated', Date.now());
+
+    return dataFromAPI;
+  } catch (error) {
+    console.error('Erro ao verificar dados no Local Storage:', error);
+    return [];
+  }
+}
+
 async function init() {
   try {
-    await fetchAnimaisAndSaveToLocalStorage();
+    const data = await syncLocalStorageWithAPI();
     await displayPostsFromLocalStorage();
     createDynamicStories();
   } catch (error) {

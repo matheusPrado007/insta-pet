@@ -493,12 +493,12 @@ async function fetchAnimaisAndSaveToLocalStorage() {
 
     let cachedDataArray = JSON.parse(cachedData) || []; // Inicializar com um array vazio se não houver dados no Local Storage
     if (cachedDataArray) {
-      cachedDataArray.forEach((item) => existingIds.add(item.id));
+      cachedDataArray.forEach((item) => existingIds.add(item._id));
     }
 
     // Atualizar o Local Storage apenas com os IDs ausentes
     data.forEach((item) => {
-      if (!existingIds.has(item.id)) {
+      if (!existingIds.has(item._id)) {
         cachedDataArray.push(item);
       }
     });

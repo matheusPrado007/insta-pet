@@ -298,41 +298,46 @@ async function createPostMediaElement(mediaUrl, animalData) {
   spanElement.classList.add('loading-text');
   spanElement.textContent = 'Carregando...';
 
-  return new Promise((resolve, reject) => {
-    const postMedia = new Image();
-    postMedia.classList.add('post__media', 'image');
-    postMedia.alt = 'Imagem da Postagem';
-    postMedia.src = fallbackImageUrl;
+  const postMedia = new Image();
+  postMedia.classList.add('post__media', 'image');
+  postMedia.alt = 'Imagem da Postagem';
+  postMedia.src = fallbackImageUrl;
+  postMedia.setAttribute('data-src', mediaUrl);
 
-    const textElement = document.createElement('p');
-    textElement.classList.add('image-text');
-    textElement.textContent = `Clique e me conheça!`;
+  const textElement = document.createElement('p');
+  textElement.classList.add('image-text');
+  textElement.textContent = 'Clique para me conhecer melhor!';
 
-    divContainer.appendChild(postMedia);
-    divContainer.appendChild(spanElement);
-    divContainer.appendChild(textElement);
+  divContainer.appendChild(postMedia);
+  divContainer.appendChild(spanElement);
+  divContainer.appendChild(textElement);
 
-    postMedia.onerror = () => {
-      const fallbackImg = new Image();
-      fallbackImg.src = fallbackImageUrl;
-      fallbackImg.alt = 'Imagem de fallback';
-      resolve(fallbackImg);
-    };
+  const redirectToProfile = () => {
+    redirectToAnimalProfile(animalData);
+  };
 
-    postMedia.onload = () => {
-      resolve(postMedia);
-    };
+  const handleMediaClick = () => {
+    redirectToProfile();
+  };
 
-    postMedia.setAttribute('data-src', mediaUrl);
+  textElement.addEventListener('click', redirectToProfile);
+  postMedia.addEventListener('click', handleMediaClick);
 
-    postMedia.addEventListener('click', () => {
-      redirectToAnimalProfile(animalData);
-    });
+  postMedia.onerror = () => {
+    const fallbackImg = new Image();
+    fallbackImg.src = fallbackImageUrl;
+    fallbackImg.alt = 'Imagem de fallback';
+    resolve(fallbackImg);
+  };
 
-    spanElement.style.display = 'none';
-    resolve(divContainer);
-  });
+  postMedia.onload = () => {
+    resolve(postMedia);
+  };
+
+  spanElement.style.display = 'none';
+  return divContainer;
 }
+
 
 
 

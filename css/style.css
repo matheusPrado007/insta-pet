@@ -38,23 +38,48 @@ textarea {
   --box-shadow-h: 0 .5rem 1rem rgb(255, 0, 0);
 }
 :root.darkTheme {
-  --primary: hsl(0, 0%, 2%);
+  --primary:  #121212 ;
   --secondary: hsl(0, 0%, 2%);
   --border: hsl(0, 0%, 15%);
 
   --story-border: hsl(0, 0%, 44%);
   --img-border: hsla(0, 0%, 100%, 0.1);
 
-  --text-dark: hsl(0, 0%, 98%);
+  --text-dark: #D3D3D3 ;
   --text-light: hsl(0, 0%, 60%);
 }
 
 /* -------------------------------------------------- */
 
 
+
 .image-container {
   position: relative;
 }
+
+.image-text {
+  color: #ffffff; 
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 5px;
+  margin: 0;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  width: auto; 
+  display: inline-block; 
+  border-radius: 10% 10% 0 19%;
+  opacity: 0.7;
+  animation: typing 5s infinite;
+  /* Aplicando o gradiente de fundo */
+  background: linear-gradient(to right, #ff5e3a, #ff2a68, #ff007d);
+}
+
+.image-text:hover {
+  opacity: 1;
+}
+
 
 .image {
   display: block;
@@ -484,6 +509,7 @@ img {
   flex: none;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+  border-radius: 2%;
 }
 
 .post__footer {
@@ -859,19 +885,19 @@ img {
 }
 
 
-/* Media Queries */
+/* Tela menor que 768px (até 767px) */
 @media (max-width: 767px) {
   .header__buttons--desktop {
     display: none;
   }
 
-  /* Fix post medias indicators bugs on mobile */
   .post__medias {
     gap: 1px;
   }
 }
 
-@media (min-width: 620px) {
+/* Tela entre 620px e 767px */
+@media (min-width: 620px) and (max-width: 767px) {
   .content-container {
     padding: 30px 0 24px;
   }
@@ -880,10 +906,12 @@ img {
     gap: 24px;
   }
 
-  .stories {
+  .stories,
+  .post {
     border: 1px solid var(--border);
     border-radius: 4px;
   }
+
   .stories::after {
     content: none;
   }
@@ -891,17 +919,18 @@ img {
   .posts {
     gap: 24px;
   }
-  .post {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-  }
+
   .post__footer {
     padding: 4px 8px 12px;
   }
+
   .post__date-time {
     margin-top: 6px;
   }
 }
+
+
+
 
 @media (min-width: 768px) {
   :root {
@@ -938,4 +967,6 @@ img {
   .side-menu {
     display: flex;
   }
+
 }
+

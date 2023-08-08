@@ -210,12 +210,6 @@ const buttonData = [
     strokeWidth: '1.7rem',
   },
   {
-    iconPath: "/images/clique.png",
-    fillColor: 'var(--text-dark)',
-    strokeColor: 'var(--text-dark)',
-    strokeWidth: '5.5rem',
-  },
-  {
     iconPath: "/images/money.png",
     fillColor: 'var(--text-dark)',
     strokeColor: 'var(--text-dark)',
@@ -228,13 +222,10 @@ function createButton(iconPath, fillColor, strokeColor, strokeWidth) {
   const button = document.createElement('button');
   button.className = 'post__button';
 
-  if (iconPath === "/images/money.png" || iconPath === "/images/clique.png") {
+  if (iconPath === "/images/money.png") {
     button.classList.add('post__button--align-right');
   }
 
-  if ( iconPath === "/images/clique.png") {
-    button.classList.add('me-adote');
-  }
 
   const img = document.createElement('img');
   img.src = iconPath;
@@ -313,11 +304,15 @@ async function createPostMediaElement(mediaUrl, animalData) {
     postMedia.alt = 'Imagem da Postagem';
     postMedia.src = fallbackImageUrl;
 
+    const textElement = document.createElement('p');
+    textElement.classList.add('image-text');
+    textElement.textContent = `Clique e me conheça!`;
+
     divContainer.appendChild(postMedia);
     divContainer.appendChild(spanElement);
+    divContainer.appendChild(textElement);
 
     postMedia.onerror = () => {
-
       const fallbackImg = new Image();
       fallbackImg.src = fallbackImageUrl;
       fallbackImg.alt = 'Imagem de fallback';
@@ -334,9 +329,12 @@ async function createPostMediaElement(mediaUrl, animalData) {
       redirectToAnimalProfile(animalData);
     });
 
-    resolve(postMedia);
+    spanElement.style.display = 'none';
+    resolve(divContainer);
   });
 }
+
+
 
 function lazyLoadImages() {
   const lazyImages = document.querySelectorAll('img[data-src]');

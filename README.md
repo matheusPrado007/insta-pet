@@ -22,7 +22,7 @@ informações sobre animais que precisam de um lar amoroso.
 - Compartilhamento em Redes Sociais: Os usuários podem compartilhar postagens de animais em outras redes sociais para aumentar a visibilidade e a chance de adoção.
 
 ## Tecnologias Utilizadas
-- Frontend: HTML, CSS, JavaScript, React.js
+- Frontend: HTML, CSS, JavaScript
 - Backend: Node.js, Express.js, MongoDB
 - Hospedagem: netlify.app
 

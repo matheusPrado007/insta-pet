@@ -302,7 +302,15 @@ async function createPostMediaElement(mediaUrl, animalData) {
     const postMedia = new Image();
     postMedia.classList.add('post__media', 'image');
     postMedia.alt = 'Imagem da Postagem';
-    postMedia.src = mediaUrl; 
+    postMedia.src = mediaUrl;
+    
+    // Adicione o atributo srcset e sizes para especificar diferentes versões da imagem
+    postMedia.srcset = `${mediaUrl} 800w,
+                        ${mediaUrl.replace('.jpg', '-medium.jpg')} 480w,
+                        ${mediaUrl.replace('.jpg', '-small.jpg')} 320w`;
+    
+    postMedia.sizes = '(max-width: 800px) 100vw, 800px';
+    
     postMedia.addEventListener('load', () => {
       divContainer.removeChild(spanElement); 
       divContainer.appendChild(postMedia); 
@@ -336,8 +344,6 @@ async function createPostMediaElement(mediaUrl, animalData) {
     return divContainer; 
   });
 }
-
-
 
 
 function lazyLoadImages() {

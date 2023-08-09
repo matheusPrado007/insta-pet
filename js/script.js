@@ -555,6 +555,7 @@ async function syncLocalStorageWithAPI() {
 
 async function init() {
   try {
+    const dataApi = await fetchAnimais();
     const data = await syncLocalStorageWithAPI();
     await displayPostsFromLocalStorage();
     createDynamicStories();

@@ -291,51 +291,50 @@ async function createPostMediasElement() {
 }
 
 async function createPostMediaElement(mediaUrl, animalData) {
-  const divContainer = document.createElement('div');
-  divContainer.classList.add('header_back', 'image-container');
+  return new Promise((resolve, reject) => {
+    const divContainer = document.createElement('div');
+    divContainer.classList.add('header_back', 'image-container');
 
-  const spanElement = document.createElement('span');
-  spanElement.classList.add('loading-text');
-  spanElement.textContent = 'Carregando...';
+    const spanElement = document.createElement('span');
+    spanElement.classList.add('loading-text');
+    spanElement.textContent = 'Carregando...';
 
-  const postMedia = new Image();
-  postMedia.classList.add('post__media', 'image');
-  postMedia.alt = 'Imagem da Postagem';
-  postMedia.src = fallbackImageUrl;
-  postMedia.setAttribute('data-src', mediaUrl);
+    const postMedia = new Image();
+    postMedia.classList.add('post__media', 'image');
+    postMedia.alt = 'Imagem da Postagem';
+    postMedia.src = mediaUrl; 
+    postMedia.addEventListener('load', () => {
+      divContainer.removeChild(spanElement); 
+      divContainer.appendChild(postMedia); 
+      resolve(divContainer); 
+    });
+    postMedia.addEventListener('error', () => {
+      const fallbackImg = new Image();
+      fallbackImg.src = fallbackImageUrl;
+      fallbackImg.alt = 'Imagem de fallback';
+      resolve(fallbackImg);
+    });
 
-  const textElement = document.createElement('p');
-  textElement.classList.add('image-text');
-  textElement.textContent = 'Clique para me conhecer melhor!';
+    const textElement = document.createElement('p');
+    textElement.classList.add('image-text');
+    textElement.textContent = 'Clique para me conhecer melhor!';
 
-  divContainer.appendChild(postMedia);
-  divContainer.appendChild(spanElement);
-  divContainer.appendChild(textElement);
+    const redirectToProfile = () => {
+      redirectToAnimalProfile(animalData);
+    };
 
-  const redirectToProfile = () => {
-    redirectToAnimalProfile(animalData);
-  };
+    const handleMediaClick = () => {
+      redirectToProfile();
+    };
 
-  const handleMediaClick = () => {
-    redirectToProfile();
-  };
+    textElement.addEventListener('click', redirectToProfile);
+    postMedia.addEventListener('click', handleMediaClick);
 
-  textElement.addEventListener('click', redirectToProfile);
-  postMedia.addEventListener('click', handleMediaClick);
+    divContainer.appendChild(spanElement); 
+    divContainer.appendChild(textElement); 
 
-  postMedia.onerror = () => {
-    const fallbackImg = new Image();
-    fallbackImg.src = fallbackImageUrl;
-    fallbackImg.alt = 'Imagem de fallback';
-    resolve(fallbackImg);
-  };
-
-  postMedia.onload = () => {
-    resolve(postMedia);
-  };
-
-  spanElement.style.display = 'none';
-  return divContainer;
+    return divContainer; 
+  });
 }
 
 

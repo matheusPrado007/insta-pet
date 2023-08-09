@@ -6,73 +6,70 @@ const posts = document.querySelectorAll('.post');
 const postsContent = document.querySelectorAll('.post__content');
 const logo = document.querySelector('.logo')
 
-function setInitialTheme(themeKey) {
+// Função para definir o tema inicial
+function setTheme(themeKey) {
   document.documentElement.classList.toggle('darkTheme', themeKey === 'dark');
-  const logo = document.querySelector('.logo');
   logo.src = themeKey === 'dark' ? '/images/cat-1.png' : '/images/icons8-cachorro-48.png';
 }
 
-// Toggle theme button
-toggleThemeBtn.addEventListener('click', () => {
-  // Toggle root class
-  document.documentElement.classList.toggle('darkTheme');
+function updateLocalStorageAndTheme(themeKey) {
+  localStorage.setItem('theme', themeKey);
+  setTheme(themeKey);
+}
 
-  // Saving current theme on LocalStorage
-  if (document.documentElement.classList.contains('darkTheme')) {
-    localStorage.setItem('theme', 'dark');
-    logo.src = '/images/cat-1.png';
-  } else {
-    logo.src = '/images/icons8-cachorro-48.png';
-    localStorage.setItem('theme', 'light');
-  }
-});
+function handleThemeToggle() {
+  const isDarkTheme = document.documentElement.classList.contains('darkTheme');
+  const themeKey = isDarkTheme ? 'light' : 'dark';
+  updateLocalStorageAndTheme(themeKey);
+}
 
-// ===================================
-// STORIES SCROLL BUTTONS
-// Scrolling stories content
-// Navegação do conteúdo de histórias
-if (storiesContent) {
-  storiesLeftButton.addEventListener('click', () => {
-    storiesContent.scrollLeft -= 320;
-  });
+function setInitialTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  setTheme(savedTheme);
+}
 
-  storiesRightButton.addEventListener('click', () => {
-    storiesContent.scrollLeft += 320;
-  });
 
-  // Verificar se a tela possui largura mínima de 1024px
-  if (window.matchMedia('(min-width: 1024px)').matches) {
-    const storiesObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach((entry) => {
-          if (entry.target.classList.contains('story:first-child')) {
-            storiesLeftButton.style.display = entry.isIntersecting ? 'none' : 'unset';
-          } else if (entry.target.classList.contains('story:last-child')) {
-            storiesRightButton.style.display = entry.isIntersecting ? 'none' : 'unset';
-          }
-        });
-      },
-      { root: storiesContent, threshold: 1 }
-    );
+function initial() {
+  setInitialTheme();
 
-    // Chamar o observador com as primeiras e últimas histórias
-    const firstStory = document.querySelector('.story:first-child');
-    const lastStory = document.querySelector('.story:last-child');
+  toggleThemeBtn.addEventListener('click', handleThemeToggle);
 
-    if (firstStory) {
-      storiesObserver.observe(firstStory);
-    }
+  if (storiesContent) {
+    storiesLeftButton.addEventListener('click', () => {
+      storiesContent.scrollLeft -= 320;
+    });
 
-    if (lastStory) {
-      storiesObserver.observe(lastStory);
+    storiesRightButton.addEventListener('click', () => {
+      storiesContent.scrollLeft += 320;
+    });
+
+    if (window.matchMedia('(min-width: 1024px)').matches) {
+      const storiesObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach((entry) => {
+            storiesLeftButton.style.display = entry.target.classList.contains('story:first-child') ? (entry.isIntersecting ? 'none' : 'unset') : storiesLeftButton.style.display;
+            storiesRightButton.style.display = entry.target.classList.contains('story:last-child') ? (entry.isIntersecting ? 'none' : 'unset') : storiesRightButton.style.display;
+          });
+        },
+        { root: storiesContent, threshold: 1 }
+      );
+
+      const firstStory = document.querySelector('.story:first-child');
+      const lastStory = document.querySelector('.story:last-child');
+
+      if (firstStory) {
+        storiesObserver.observe(firstStory);
+      }
+
+      if (lastStory) {
+        storiesObserver.observe(lastStory);
+      }
     }
   }
 }
 
+document.addEventListener('DOMContentLoaded', initial);
 
-// ===================================
-// POST MULTIPLE MEDIAS
-// Creating scroll buttons and indicators when post has more than one media
 posts.forEach((post) => {
   if (post.querySelectorAll('.post__media').length > 1) {
     const leftButtonElement = document.createElement('button');
@@ -344,6 +341,9 @@ async function createPostMediaElement(mediaUrl, animalData) {
     return divContainer; 
   });
 }
+
+
+
 
 
 function lazyLoadImages() {

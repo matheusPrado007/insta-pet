@@ -334,11 +334,13 @@ async function createPostMediaElement(mediaUrl, animalData) {
       redirectToProfile();
     };
 
-    textElement.addEventListener('click', () => {
+    const handleTextClick = () => {
+      redirectToProfile();
       isAdoptText = !isAdoptText; // Alterna o estado do texto
       updateText();
-    });
+    };
 
+    textElement.addEventListener('click', handleTextClick);
     postMedia.addEventListener('click', handleMediaClick);
 
     divContainer.appendChild(spanElement);
@@ -357,6 +359,7 @@ async function createPostMediaElement(mediaUrl, animalData) {
     return divContainer;
   });
 }
+
 
 
 function lazyLoadImages() {

@@ -300,18 +300,18 @@ async function createPostMediaElement(mediaUrl, animalData) {
     postMedia.classList.add('post__media', 'image');
     postMedia.alt = 'Imagem da Postagem';
     postMedia.src = mediaUrl;
-    
+
     // Adicione o atributo srcset e sizes para especificar diferentes versões da imagem
     postMedia.srcset = `${mediaUrl} 800w,
                         ${mediaUrl.replace('.jpg', '-medium.jpg')} 480w,
                         ${mediaUrl.replace('.jpg', '-small.jpg')} 320w`;
-    
+
     postMedia.sizes = '(max-width: 800px) 100vw, 800px';
-    
+
     postMedia.addEventListener('load', () => {
-      divContainer.removeChild(spanElement); 
-      divContainer.appendChild(postMedia); 
-      resolve(divContainer); 
+      divContainer.removeChild(spanElement);
+      divContainer.appendChild(postMedia);
+      resolve(divContainer);
     });
     postMedia.addEventListener('error', () => {
       const fallbackImg = new Image();
@@ -322,7 +322,9 @@ async function createPostMediaElement(mediaUrl, animalData) {
 
     const textElement = document.createElement('p');
     textElement.classList.add('image-text');
-    textElement.textContent = 'Clique para me conhecer melhor!';
+
+    let isAdoptText = false; // Variável para controlar o estado do texto
+    updateText();
 
     const redirectToProfile = () => {
       redirectToAnimalProfile(animalData);
@@ -332,18 +334,29 @@ async function createPostMediaElement(mediaUrl, animalData) {
       redirectToProfile();
     };
 
-    textElement.addEventListener('click', redirectToProfile);
+    textElement.addEventListener('click', () => {
+      isAdoptText = !isAdoptText; // Alterna o estado do texto
+      updateText();
+    });
+
     postMedia.addEventListener('click', handleMediaClick);
 
-    divContainer.appendChild(spanElement); 
-    divContainer.appendChild(textElement); 
+    divContainer.appendChild(spanElement);
+    divContainer.appendChild(textElement);
 
-    return divContainer; 
+    // Alterna automaticamente o texto a cada 5 segundos
+    setInterval(() => {
+      isAdoptText = !isAdoptText; // Alterna o estado do texto
+      updateText();
+    }, 5000); // Intervalo de 5000 milissegundos (5 segundos)
+
+    function updateText() {
+      textElement.textContent = isAdoptText ? 'Clique Aqui!' : 'Me Adote!';
+    }
+
+    return divContainer;
   });
 }
-
-
-
 
 
 function lazyLoadImages() {

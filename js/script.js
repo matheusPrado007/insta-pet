@@ -10,6 +10,13 @@ const logo = document.querySelector('.logo')
 function setTheme(themeKey) {
   document.documentElement.classList.toggle('darkTheme', themeKey === 'dark');
   logo.src = themeKey === 'dark' ? '/images/cat-1.png' : '/images/icons8-cachorro-48.png';
+  if (logo) {
+    if (themeKey === 'dark') {
+      logo.classList.add('logo');
+    } else {
+      logo.classList.remove('logo');
+    }
+  }
 }
 
 function updateLocalStorageAndTheme(themeKey) {

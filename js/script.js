@@ -362,7 +362,7 @@ async function createPostMediaElement(mediaUrl, animalData) {
 
 
 
-function lazyLoadImages() {
+async function lazyLoadImages() {
   const lazyImages = document.querySelectorAll('img[data-src]');
   const imageObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -385,9 +385,10 @@ function redirectToAnimalProfile(animalData) {
   window.location.href = profileUrl;
 }
 
-function getRandomNumber() {
-  return Math.floor(Math.random() * 81) + 20;
+function getRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
 
 async function createPostInfos(data, postElements) {
   postElements.forEach((postElement, index) => {
@@ -473,23 +474,31 @@ async function createPost(data) {
   return articleElement;
 }
 
-
 async function displayPosts(data) {
   const postsContainer = document.querySelector('.posts');
-  const postElements = []; // Array para armazenar os elementos dos posts
+  const postElements = [];
 
-  for (let index = 0; index < data.length; index += 1) {
-    const postElement = await createPost(data[index]);
+  for (const item of data) {
+    const postElement = await createPost(item);
     postsContainer.appendChild(postElement);
-    postElements.push(postElement); // Adicione o elemento do post ao array
+    postElements.push(postElement);
   }
 
-  await createPostInfos(data, postElements); // Chame createPostInfos com o array de elementos de post
+  await createPostInfos(data, postElements);
   lazyLoadImages();
 }
 
 
 const dataNumber = ['1 day ago', '3 days ago', '30 minutes ago', '30 minutes ago', '3 hours ago'];
+
+function loadAsyncImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
 
 async function fetchAnimaisToLocalStorage() {
   try {
@@ -571,9 +580,19 @@ async function init() {
     const apiData = await fetchAnimais();
     const localStorageData = await syncLocalStorageWithAPI();
 
-    // Use a variável 'localStorageData' para exibir os dados, se preferir
-    await displayPosts(localStorageData);
+    const postsContainer = document.querySelector('.posts');
+    const postElements = []; 
 
+    for (const item of localStorageData) {
+      const img = await loadAsyncImage(item.foto);
+      item.imgElement = img;
+      const postElement = await createPost(item);
+      postsContainer.appendChild(postElement);
+      postElements.push(postElement);
+    }
+
+    await createPostInfos(localStorageData, postElements);
+    lazyLoadImages();
     createDynamicStories();
   } catch (error) {
     console.error('Erro na inicialização:', error);
